@@ -1,8 +1,9 @@
 import os
 import requests
-import pickle
 import pandas as pd
 import streamlit as st
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from dotenv import load_dotenv
 import base64
 
@@ -45,12 +46,16 @@ if not API_KEY or not BASE_URL:
     st.stop()
 
 
-#load cosine similarity data
-with open("cosine_similarity.pkl","rb") as file:
-    cosine_sim = pickle.load(file)
 
 #load data
 movies = pd.read_csv("Datasets/movies_cleaned.csv")
+
+#vectorising the text using tfidf
+vectorizer = TfidfVectorizer(stop_words="english",max_features=5000)
+vectors = vectorizer.fit_transform(movies["tags"]).toarray()
+
+#find cosine similarity
+cosine_sim = cosine_similarity(vectors)
 
 @st.cache_data(show_spinner=False)
 def get_poster(movieid):
