@@ -8,9 +8,10 @@ from dotenv import load_dotenv
 import base64
 
 #setup
-st.set_page_config(page_icon="clapperboard.png",page_title="Movie Recommendation System",layout="wide")
+BASE_DIR = os.path.dirname(__file__)
+st.set_page_config(page_icon=os.path.join(BASE_DIR,"assets","clapperboard.png"),page_title="Movie Recommendation System",layout="wide")
 st.sidebar.markdown("<h2 style= color:#FF2056;>Movie Recommendation System</h2>",unsafe_allow_html=True)
-st.sidebar.image("clapperboard.png",width=200)
+st.sidebar.image(os.path.join(BASE_DIR,"assets","clapperboard.png"),width=200)
 st.sidebar.text("Never Run Out of Movies")
 
 #background image
@@ -34,7 +35,7 @@ def set_bg_local(image_file):
         unsafe_allow_html=True
     )
 
-set_bg_local("semi-transparent.jpg")
+set_bg_local(os.path.join(BASE_DIR,"assets","semi-transparent.jpg"))
 
 #load API's
 load_dotenv()
@@ -48,7 +49,7 @@ if not API_KEY or not BASE_URL:
 
 
 #load data
-movies = pd.read_csv("Datasets/movies_cleaned.csv")
+movies = pd.read_csv(os.path.join(BASE_DIR,"Datasets","movies_cleaned.csv"))
 
 #vectorising the text using tfidf
 vectorizer = TfidfVectorizer(stop_words="english",max_features=5000)
@@ -71,10 +72,10 @@ def get_poster(movieid):
         if poster_path:
             return "https://image.tmdb.org/t/p/w500" + poster_path
         else:
-            return "icons/empty.png"
+            return os.path.join(BASE_DIR,"assets","empty.png")
         
     except Exception as e:
-        return "icons/empty.png"
+        return os.path.join(BASE_DIR,"assets","empty.png")
    
   
     
