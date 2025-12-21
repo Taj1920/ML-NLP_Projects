@@ -1,0 +1,10 @@
+#Environment variables
+.env
+
+#cosine similarity
+*.pkl
+
+#virtual environment
+venv/
+MRSENV/
+.venv/
