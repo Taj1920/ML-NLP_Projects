@@ -8,9 +8,9 @@ from dotenv import load_dotenv
 import base64
 
 #setup
-st.set_page_config(page_icon="icons/clapperboard.png",page_title="Movie Recommendation System",layout="wide")
+st.set_page_config(page_icon="clapperboard.png",page_title="Movie Recommendation System",layout="wide")
 st.sidebar.markdown("<h2 style= color:#FF2056;>Movie Recommendation System</h2>",unsafe_allow_html=True)
-st.sidebar.image("icons/clapperboard.png",width=200)
+st.sidebar.image("clapperboard.png",width=200)
 st.sidebar.text("Never Run Out of Movies")
 
 #background image
@@ -34,7 +34,7 @@ def set_bg_local(image_file):
         unsafe_allow_html=True
     )
 
-set_bg_local("icons/semi-transparent.jpg")
+set_bg_local("semi-transparent.jpg")
 
 #load API's
 load_dotenv()
