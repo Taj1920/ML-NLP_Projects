@@ -88,22 +88,50 @@ def recommend_movie(title):
         title = movies.iloc[idx[0]]["title"]
         with st.spinner("Loading.."):
             url = get_poster(movieid)
-  
-        recommended_movies.append([url,title])
+        recommended_movies.append([url,title,movieid])
     return recommended_movies
+
+@st.dialog(" ")
+def disp_overview(movieid):
+    df = movies[movies["movie_id"]==movieid].reset_index()
+    st.write("## ",df["title"][0])
+    st.write("**Overview:** "," ".join(eval(df["overview"][0])))
+    st.write("**Genre:** ")
+    st.info(", ".join(eval(df["genres"][0])),)
+    st.write("**Director:** ")
+    st.info(" ".join(eval(df["crew"][0])))
+    st.write("**Cast:** ")
+    st.info(", ".join(eval(df["cast"][0])))
+
+
+if "movieid" not in st.session_state:
+    st.session_state.movieid=False
+
+if "recommended_movies" not in st.session_state:
+    st.session_state.recommended_movies = None
+
 
 col1,col2 = st.columns([8,1])
 title = col1.selectbox("which movie do you like? ",options=movies["title"].unique())
 col2.write(" ")
 col2.text(" ")
 if col2.button("Search"):
-    if title:
-        recommended_movies = recommend_movie(title)
-        c1,c2,c3,c4,c5 = st.columns(5,border=True,gap="small")
-        b1,b2,b3,b4,b5 = st.columns(5,border=True)
-        cols = [c1,c2,c3,c4,c5,b1,b2,b3,b4,b5]
-        for idx,movie in enumerate(recommended_movies):
-            with cols[idx]:
-                st.image(movie[0],use_container_width=True)
-                st.write(movie[1])
+    st.session_state.recommended_movies = recommend_movie(title)
+
+if st.session_state.recommended_movies:
+    c1,c2,c3,c4,c5 = st.columns(5,border=True,gap="small")
+    b1,b2,b3,b4,b5 = st.columns(5,border=True)
+    cols = [c1,c2,c3,c4,c5,b1,b2,b3,b4,b5]
+    for idx,movie in enumerate(st.session_state.recommended_movies):
+        with cols[idx]:
+            st.image(movie[0],use_container_width=True)
+            if st.button(movie[1],type="tertiary",key=f"movie_btn_{idx}"):
+                st.session_state.movieid = movie[2]
+                st.session_state.show_dialog = True
+                st.rerun()
+        
+if st.session_state.movieid:
+    disp_overview(st.session_state.movieid)
+    st.session_state.show_dialog = False
+    st.session_state.movieid = False
     
