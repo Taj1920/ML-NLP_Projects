@@ -77,7 +77,15 @@ def get_poster(movieid):
     except Exception as e:
         return os.path.join(BASE_DIR,"assets","empty.png")
    
-  
+def popular_movies(n=10):
+    df = movies.sort_values(by="popularity",ascending=False).head(n)
+    popular_movies = []
+    for movieid,title in zip(df["movie_id"],df["title"]):
+        with st.spinner("Loading.."):
+            url = get_poster(movieid)
+        popular_movies.append([url,title,movieid])
+    
+    return popular_movies
     
 def recommend_movie(title):
     index = movies[movies['title']==title].index[0]
@@ -103,6 +111,17 @@ def disp_overview(movieid):
     st.write("**Cast:** ")
     st.info(", ".join(eval(df["cast"][0])))
 
+def display_posters(state,button_name):
+    c1,c2,c3,c4,c5 = st.columns(5,border=True,gap="small")
+    b1,b2,b3,b4,b5 = st.columns(5,border=True)
+    cols = [c1,c2,c3,c4,c5,b1,b2,b3,b4,b5]
+    for idx,movie in enumerate(state):
+        with cols[idx]:
+            st.image(movie[0],use_container_width=True)
+            if st.button(movie[1],type="tertiary",key=f"{button_name}_{idx}"):
+                st.session_state.movieid = movie[2]
+                st.session_state.show_dialog = True
+                st.rerun()
 
 if "movieid" not in st.session_state:
     st.session_state.movieid=False
@@ -110,25 +129,29 @@ if "movieid" not in st.session_state:
 if "recommended_movies" not in st.session_state:
     st.session_state.recommended_movies = None
 
+if "popular_movies" not in st.session_state:
+    st.session_state.popular_movies = None
 
-col1,col2 = st.columns([8,1])
-title = col1.selectbox("which movie do you like? ",options=movies["title"].unique())
-col2.write(" ")
-col2.text(" ")
-if col2.button("Search"):
-    st.session_state.recommended_movies = recommend_movie(title)
+# selection = st.segmented_control(" ",options=["Popular","Recommend"],default="Popular")
+tab1,tab2 = st.tabs(tabs=["Popular","Recommend"])
+with tab1:
+    #popular movies
+    st.subheader("Popular movies")
+    st.session_state.popular_movies = popular_movies()
+    display_posters(st.session_state.popular_movies,"pop_movies")
 
-if st.session_state.recommended_movies:
-    c1,c2,c3,c4,c5 = st.columns(5,border=True,gap="small")
-    b1,b2,b3,b4,b5 = st.columns(5,border=True)
-    cols = [c1,c2,c3,c4,c5,b1,b2,b3,b4,b5]
-    for idx,movie in enumerate(st.session_state.recommended_movies):
-        with cols[idx]:
-            st.image(movie[0],use_container_width=True)
-            if st.button(movie[1],type="tertiary",key=f"movie_btn_{idx}"):
-                st.session_state.movieid = movie[2]
-                st.session_state.show_dialog = True
-                st.rerun()
+with tab2:
+    col1,col2 = st.columns([8,1])
+    title = col1.selectbox("which movie do you like? ",options=movies["title"].unique())
+    col2.write(" ")
+    col2.text(" ")
+
+    if col2.button("Search"):
+        st.session_state.recommended_movies = recommend_movie(title)
+
+
+    if st.session_state.recommended_movies:
+        display_posters(st.session_state.recommended_movies,"rec_movies")
         
 if st.session_state.movieid:
     disp_overview(st.session_state.movieid)
